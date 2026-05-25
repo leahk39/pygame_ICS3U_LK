@@ -33,14 +33,23 @@ while running:
 
         # if keystroke is pressed check whether it is left or right
         if event.type == pygame.KEYDOWN:
-            print("A keystroke is pressed")
             if event.key == pygame.K_LEFT:
-                playerX_change =- 0.1
+                playerX_change =- 0.3
             if event.key == pygame.K_RIGHT:
-                playerX_change = 0.1
+                playerX_change = 0.3
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                print("Keystroke has been released")
+                playerX_change = 0
+
+    # 5 = 5 + -0.1 -> 5.4 = 5 - 0.1
+    # 5 = 5 + 0.1
+
+    playerX += playerX_change
+
+    if playerX <= 0:
+        playerX = 0
+    elif playerX >= 736:
+        playerX = 736
 
     player(playerX,playerY)
     pygame.display.update()
