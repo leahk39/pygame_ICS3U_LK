@@ -28,11 +28,28 @@ enemyY = random.randint(50, 150)
 enemyX_change = 4
 enemyY_change = 40
 
+# laser
+
+# ready - you can't see the laser on the screen
+# fire - the laser is currently moving
+
+laserImg = pygame.image.load('laser.png')
+laserX = 0
+laserY = 480
+laserX_change = 0
+laserY_change = 10
+laser_state = "ready"
+
 def player(x,y):
     screen.blit(playerImg, (x, y))
 
 def enemy(x,y):
     screen.blit(enemyImg, (x, y))
+
+def fire_laser(x,y):
+    global laser_state
+    laser_state = "fire"
+    screen.blit(laserImg, (x + 16, y +10))
 
 # game loop
 running = True
@@ -52,6 +69,9 @@ while running:
                 playerX_change =- 5
             if event.key == pygame.K_RIGHT:
                 playerX_change = 5
+            if event.key == pygame.K_SPACE:
+                fire_laser(playerX, laserY)
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerX_change = 0
@@ -76,6 +96,11 @@ while running:
     elif enemyX >= 736:
         enemyX_change = -4
         enemyY += enemyY_change
+
+    # laser movement
+    if laser_state is "fire":
+        fire_laser(playerX, laserY)
+        laserY -= laserY_change
 
     player(playerX,playerY)
     enemy(enemyX, enemyY)
