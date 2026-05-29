@@ -5,7 +5,7 @@ import random
 pygame.init()
 
 # create the screen
-screen = pygame.display.set_mode((800,600))
+screen = pygame.display.set_mode((800, 600))
 
 # background
 background = pygame.image.load('spaceBack.png')
@@ -40,25 +40,29 @@ laserX_change = 0
 laserY_change = 10
 laser_state = "ready"
 
-def player(x,y):
+
+def player(x, y):
     screen.blit(playerImg, (x, y))
 
-def enemy(x,y):
+
+def enemy(x, y):
     screen.blit(enemyImg, (x, y))
 
-def fire_laser(x,y):
+
+def fire_laser(x, y):
     global laser_state
     laser_state = "fire"
-    screen.blit(laserImg, (x + 16, y +10))
+    screen.blit(laserImg, (x + 16, y + 10))
+
 
 # game loop
 running = True
 while running:
 
     # RGB - red, green, blue
-    screen.fill((0,0,0))
+    screen.fill((0, 0, 0))
     # background image
-    screen.blit(background, (0,0))
+    screen.blit(background, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -66,11 +70,14 @@ while running:
         # if keystroke is pressed check whether it is left or right
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                playerX_change =- 5
+                playerX_change = - 5
             if event.key == pygame.K_RIGHT:
                 playerX_change = 5
             if event.key == pygame.K_SPACE:
-                fire_laser(playerX, laserY)
+                if laser_state == "ready":
+                    # get the current x coordinate of the spaceship
+                    laserX = playerX
+                    fire_laser(laserX, laserY)
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -98,10 +105,14 @@ while running:
         enemyY += enemyY_change
 
     # laser movement
-    if laser_state is "fire":
-        fire_laser(playerX, laserY)
+    if laserY <= 0:
+        laserY = 480
+        laser_state = "ready"
+
+    if laser_state == "fire":
+        fire_laser(laserX, laserY)
         laserY -= laserY_change
 
-    player(playerX,playerY)
+    player(playerX, playerY)
     enemy(enemyX, enemyY)
     pygame.display.update()
