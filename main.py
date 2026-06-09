@@ -41,7 +41,13 @@ for i in range(num_of_enemies):
     enemyY.append(random.randint(50, 150))
     enemyX_change.append(3)
     enemyY_change.append(40)
-#
+
+# final boss
+finalBoss = pygame.image.load('finalBoss.png')
+finalBossX = 370
+finalBossY = 50
+playerX_change = 0
+
 # lives
 lives_num = 3
 
@@ -155,12 +161,6 @@ while running:
     elif playerX >= 736:
         playerX = 736
 
-    # # lives in game
-    # lives_num = 3
-    # if enemyY > 440:
-    #     lives_num -= 1
-    #     print("life lost")
-
     # enemy movement
     for i in range(num_of_enemies):
         # lives in game
@@ -210,6 +210,8 @@ while running:
         laserY -= laserY_change
 
     player(playerX, playerY)
+
+    # lost lives
     if lives_num >= 1:
         life1(life1X, life1Y)
 
@@ -218,8 +220,6 @@ while running:
 
     if lives_num >= 3:
         life3(life3X, life3Y)
-    # life1(life1X,life1Y)
-    # life2(life2X, life2Y)
-    # life3(life3X, life3Y)
+
     show_score(textX, textY)
     pygame.display.update()
