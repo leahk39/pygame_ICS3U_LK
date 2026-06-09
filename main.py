@@ -34,6 +34,11 @@ enemyY = []
 enemyX_change = []
 enemyY_change = []
 num_of_enemies = 6
+enemy_alive = [True for i in range(num_of_enemies)]
+enemy_alive = [True, True, True, True, True, True]
+print(enemy_alive)
+
+
 
 for i in range(num_of_enemies):
     enemyImg.append(pygame.image.load('enemy.png'))
@@ -161,15 +166,17 @@ while running:
     elif playerX >= 736:
         playerX = 736
 
+
     # enemy movement
     for i in range(num_of_enemies):
+
         # lives in game
 
         if enemyY[i] > 440:
             lives_num -= 1
 
-            enemyX[i] = random.randint(0, 735)
-            enemyY[i] = random.randint(50, 150)
+            # enemyX[i] = random.randint(0, 735)
+            # enemyY[i] = random.randint(50, 150)
 
             # game over
             if lives_num <= 0:
@@ -187,18 +194,29 @@ while running:
             enemyX_change[i] = -3
             enemyY[i] += enemyY_change[i]
 
+
+
         # collision
         collision = isCollision(enemyX[i], enemyY[i], laserX, laserY)
-        if collision:
+        if enemy_alive[i] == True and collision:
+            print(f"hit{i}")
             explosion_sound = mixer.Sound('explode.mp3')
             explosion_sound.play()
             laserY = 480
             laser_state = "ready"
             score_value += 1
-            enemyX[i] = random.randint(0, 735)
-            enemyY[i] = random.randint(50, 150)
+            enemy_alive[i] = False
+            if num_of_enemies > 0:
+                num_of_enemies -= 1
+                print(f"one enemy removed, so {num_of_enemies}")
+                break
 
-        enemy(enemyX[i], enemyY[i], i)
+            # enemyX[i] = random.randint(0, 735)
+            # enemyY[i] = random.randint(50, 150)
+
+        if enemy_alive[i] == True:
+            enemy(enemyX[i], enemyY[i], i)
+
 
     # laser movement
     if laserY <= 0:
@@ -223,3 +241,6 @@ while running:
 
     show_score(textX, textY)
     pygame.display.update()
+
+
+
