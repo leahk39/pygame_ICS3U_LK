@@ -33,7 +33,7 @@ enemyX = []
 enemyY = []
 enemyX_change = []
 enemyY_change = []
-num_of_enemies = 6
+num_of_enemies = 2
 enemy_alive = [True for i in range(num_of_enemies)]
 enemy_alive = [True, True, True, True, True, True]
 print(enemy_alive)
@@ -78,6 +78,8 @@ laserY = 480
 laserX_change = 0
 laserY_change = 10
 laser_state = "ready"
+
+explosion_sound = mixer.Sound('explode.mp3')
 
 # font
 score_value = 0
@@ -169,12 +171,11 @@ while running:
 
     # enemy movement
     for i in range(num_of_enemies):
-
         # lives in game
 
         if enemyY[i] > 440:
             lives_num -= 1
-
+            print("life lost")
             # enemyX[i] = random.randint(0, 735)
             # enemyY[i] = random.randint(50, 150)
 
@@ -194,13 +195,14 @@ while running:
             enemyX_change[i] = -3
             enemyY[i] += enemyY_change[i]
 
-
+        if enemy_alive[i] == True:
+            enemy(enemyX[i], enemyY[i], i)
 
         # collision
         collision = isCollision(enemyX[i], enemyY[i], laserX, laserY)
         if enemy_alive[i] == True and collision:
             print(f"hit{i}")
-            explosion_sound = mixer.Sound('explode.mp3')
+
             explosion_sound.play()
             laserY = 480
             laser_state = "ready"
@@ -214,8 +216,7 @@ while running:
             # enemyX[i] = random.randint(0, 735)
             # enemyY[i] = random.randint(50, 150)
 
-        if enemy_alive[i] == True:
-            enemy(enemyX[i], enemyY[i], i)
+
 
 
     # laser movement
