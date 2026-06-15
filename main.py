@@ -52,9 +52,14 @@ for i in range(NUM_ENEMIES_MAX):
 
 # final boss
 finalBossImg = pygame.image.load(os.path.join(BASE_DIR, 'finalBoss.png'))
-finalBossX = 370
-finalBossY = 50
-finalBossY_change = 1
+
+finalBossX = 333
+finalBossY = -150      # start off-screen
+finalBossY_change = 0.3
+
+boss_active = False
+boss_hp = 11
+boss_alive = True
 
 # lives
 lives_num = 3
@@ -133,6 +138,11 @@ def isCollision(enemyX,enemyY,laserX,laserY):
     else:
         return False
 
+def bossCollision(bossX, bossY, laserX, laserY):
+    distance = math.sqrt((bossX - laserX)**2 + (bossY - laserY)**2)
+    return distance < 60
+
+
 # game loop
 running = True
 while running:
@@ -183,15 +193,6 @@ while running:
             if enemyY[i] > 440:
                 lives_num -= 1
                 print("life lost")
-                # enemyX[i] = random.randint(0, 735)
-                # enemyY[i] = random.randint(50, 150)
-
-                # game over
-                if lives_num <= 0:
-                    for j in range(NUM_ENEMIES_MAX):
-                        enemyY[j] = 2000
-                    game_over_text()
-                    break
 
             enemyX[i] += enemyX_change[i]
 
@@ -220,8 +221,40 @@ while running:
                     print(f"one enemy removed, so {num_enemies_alive}")
                     break
 
-                # enemyX[i] = random.randint(0, 735)
-                # enemyY[i] = random.randint(50, 150)
+
+    if num_enemies_alive == 0 and not boss_active and boss_alive:
+        boss_active = True
+
+    if boss_active and boss_alive:
+        finalBossY += finalBossY_change
+
+        finalBoss(finalBossX, finalBossY)
+
+    if boss_active and boss_alive:
+        if finalBossY < 50:
+            finalBossY += finalBossY_change
+
+        finalBoss(finalBossX, finalBossY)
+
+    if boss_active and boss_alive:
+        collision = bossCollision(finalBossX, finalBossY, laserX, laserY)
+        print(finalBossImg.get_width(), finalBossImg.get_height())
+        print("collision =", collision)
+
+        if collision and laser_state == "fire":
+            explosion_sound.play()
+
+            laserY = 480
+            laser_state = "ready"
+
+            boss_hp -= 1
+
+            print("Boss HP:", boss_hp)
+
+            if boss_hp <= 0:
+                boss_alive = False
+                boss_active = False
+                score_value += 10  # optional bonus points
 
 
     # laser movement
@@ -246,6 +279,15 @@ while running:
         life3(life3X, life3Y)
 
     show_score(textX, textY)
+
+    if boss_active and boss_alive:
+        hp_text = font.render("Boss HP: " + str(boss_hp), True, (204, 204, 255))
+        screen.blit(hp_text, (300, 10))
+
+    # game over
+    if lives_num <= 0 or boss_alive == False:
+        for j in range(NUM_ENEMIES_MAX):
+            enemyY[j] = 2000
+        game_over_text()
+
     pygame.display.update()
-
-
