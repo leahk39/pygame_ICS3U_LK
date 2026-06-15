@@ -2,7 +2,6 @@ import pygame
 import math
 import random
 from pygame import mixer
-import os
 
 # initialize the pygame
 pygame.init()
@@ -10,21 +9,20 @@ pygame.init()
 # create the screen
 screen = pygame.display.set_mode((800, 600))
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # background
-background = pygame.image.load(os.path.join(BASE_DIR, "spaceBack.png"))
+background = pygame.image.load('spaceBack.png')
 
 # background sound
-mixer.music.load(os.path.join(BASE_DIR, 'backgroundMusic.mp3'))
+mixer.music.load('backgroundMusic.mp3')
 mixer.music.play(-1)
 
 # title and icon
 pygame.display.set_caption("Space Invaders")
-icon = pygame.image.load(os.path.join(BASE_DIR, 'ufo1.png'))
+icon = pygame.image.load('ufo1.png')
 pygame.display.set_icon(icon)
 
 # player
-playerImg = pygame.image.load(os.path.join(BASE_DIR, 'spaceship 1.png'))
+playerImg = pygame.image.load('spaceship 1.png')
 playerX = 370
 playerY = 480
 playerX_change = 0
@@ -35,37 +33,36 @@ enemyX = []
 enemyY = []
 enemyX_change = []
 enemyY_change = []
-NUM_ENEMIES_MAX = 6
-num_enemies_alive = NUM_ENEMIES_MAX
-enemy_alive = [True for i in range(NUM_ENEMIES_MAX)]
+num_of_enemies = 2
+enemy_alive = [True for i in range(num_of_enemies)]
 enemy_alive = [True, True, True, True, True, True]
 print(enemy_alive)
 
 
 
-for i in range(NUM_ENEMIES_MAX):
-    enemyImg.append(pygame.image.load(os.path.join(BASE_DIR, 'enemy.png')))
+for i in range(num_of_enemies):
+    enemyImg.append(pygame.image.load('enemy.png'))
     enemyX.append(random.randint(0, 735))
     enemyY.append(random.randint(50, 150))
     enemyX_change.append(3)
     enemyY_change.append(40)
 
 # final boss
-finalBossImg = pygame.image.load(os.path.join(BASE_DIR, 'finalBoss.png'))
+finalBoss = pygame.image.load('finalBoss.png')
 finalBossX = 370
 finalBossY = 50
-finalBossY_change = 1
+playerX_change = 0
 
 # lives
 lives_num = 3
 
-life1Img = pygame.image.load(os.path.join(BASE_DIR, 'lives.png'))
+life1Img = pygame.image.load('lives.png')
 life1X = 735
 life1Y = 30
-life2Img = pygame.image.load(os.path.join(BASE_DIR, 'lives.png'))
+life2Img = pygame.image.load('lives.png')
 life2X = 695
 life2Y = 30
-life3Img = pygame.image.load(os.path.join(BASE_DIR, 'lives.png'))
+life3Img = pygame.image.load('lives.png')
 life3X = 655
 life3Y = 30
 
@@ -75,14 +72,14 @@ life3Y = 30
 # ready - you can't see the laser on the screen
 # fire - the laser is currently moving
 
-laserImg = pygame.image.load(os.path.join(BASE_DIR, 'laser.png'))
+laserImg = pygame.image.load('laser.png')
 laserX = 0
 laserY = 480
 laserX_change = 0
 laserY_change = 10
 laser_state = "ready"
 
-explosion_sound = mixer.Sound(os.path.join(BASE_DIR, 'explode.mp3'))
+explosion_sound = mixer.Sound('explode.mp3')
 
 # font
 score_value = 0
@@ -106,11 +103,8 @@ def player(x, y):
     screen.blit(playerImg, (x, y))
 
 
-def blit_enemy(x, y, i):
+def enemy(x, y, i):
     screen.blit(enemyImg[i], (x, y))
-
-def finalBoss(x, y):
-    screen.blit(finalBossImg, (x, y))
 
 def life1(x, y):
     screen.blit(life1Img, (x, y))
@@ -153,7 +147,7 @@ while running:
                 playerX_change = 4
             if event.key == pygame.K_SPACE:
                 if laser_state == "ready":
-                    laser_sound = mixer.Sound(os.path.join(BASE_DIR, 'laserShoot.mp3'))
+                    laser_sound = mixer.Sound('laserShoot.mp3')
                     laser_sound.play()
                     # get the current x coordinate of the spaceship
                     laserX = playerX
@@ -176,52 +170,53 @@ while running:
 
 
     # enemy movement
-    for i in range(NUM_ENEMIES_MAX):
+    for i in range(num_of_enemies):
         # lives in game
 
+        if enemyY[i] > 440:
+            lives_num -= 1
+            print("life lost")
+            # enemyX[i] = random.randint(0, 735)
+            # enemyY[i] = random.randint(50, 150)
+
+            # game over
+            if lives_num <= 0:
+                for j in range(num_of_enemies):
+                    enemyY[j] = 2000
+                game_over_text()
+                break
+
+        enemyX[i] += enemyX_change[i]
+
+        if enemyX[i] <= 0:
+            enemyX_change[i] = 3
+            enemyY[i] += enemyY_change[i]
+        elif enemyX[i] >= 736:
+            enemyX_change[i] = -3
+            enemyY[i] += enemyY_change[i]
+
         if enemy_alive[i] == True:
-            if enemyY[i] > 440:
-                lives_num -= 1
-                print("life lost")
-                # enemyX[i] = random.randint(0, 735)
-                # enemyY[i] = random.randint(50, 150)
+            enemy(enemyX[i], enemyY[i], i)
 
-                # game over
-                if lives_num <= 0:
-                    for j in range(NUM_ENEMIES_MAX):
-                        enemyY[j] = 2000
-                    game_over_text()
-                    break
+        # collision
+        collision = isCollision(enemyX[i], enemyY[i], laserX, laserY)
+        if enemy_alive[i] == True and collision:
+            print(f"hit{i}")
 
-            enemyX[i] += enemyX_change[i]
+            explosion_sound.play()
+            laserY = 480
+            laser_state = "ready"
+            score_value += 1
+            enemy_alive[i] = False
+            if num_of_enemies > 0:
+                num_of_enemies -= 1
+                print(f"one enemy removed, so {num_of_enemies}")
+                break
 
-            if enemyX[i] <= 0:
-                enemyX_change[i] = 3
-                enemyY[i] += enemyY_change[i]
-            elif enemyX[i] >= 736:
-                enemyX_change[i] = -3
-                enemyY[i] += enemyY_change[i]
+            # enemyX[i] = random.randint(0, 735)
+            # enemyY[i] = random.randint(50, 150)
 
-            if enemy_alive[i] == True:
-                blit_enemy(enemyX[i], enemyY[i], i)
 
-            # collision
-            collision = isCollision(enemyX[i], enemyY[i], laserX, laserY)
-            if enemy_alive[i] == True and collision == True:
-                print(f"hit{i}")
-
-                explosion_sound.play()
-                laserY = 480
-                laser_state = "ready"
-                score_value += 1
-                enemy_alive[i] = False
-                if num_enemies_alive > 0:
-                    num_enemies_alive -= 1
-                    print(f"one enemy removed, so {num_enemies_alive}")
-                    break
-
-                # enemyX[i] = random.randint(0, 735)
-                # enemyY[i] = random.randint(50, 150)
 
 
     # laser movement
@@ -247,5 +242,6 @@ while running:
 
     show_score(textX, textY)
     pygame.display.update()
+
 
 
